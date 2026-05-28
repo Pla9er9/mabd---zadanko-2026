@@ -1,0 +1,38 @@
+.hero {
+  display: grid;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero-content {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+.hero p {
+  font-size: 1.05rem;
+  margin: 16px 0;
+  color: #525252;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-card {
+  padding: 20px;
+}
+
+.hero-card ul {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.hero-card li {
+  margin-bottom: 10px;
+}

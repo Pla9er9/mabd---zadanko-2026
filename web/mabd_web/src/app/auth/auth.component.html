@@ -1,0 +1,38 @@
+<mat-card class="auth-card">
+  <mat-card-header>
+    <mat-card-title>System zarządzania zadaniami</mat-card-title>
+    <mat-card-subtitle>Zaloguj się lub zarejestruj, aby rozpocząć pracę.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-tab-group [(selectedIndex)]="selectedTab">
+    <mat-tab label="Logowanie">
+      <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="login()">
+        <mat-form-field appearance="fill">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="username" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Hasło</mat-label>
+          <input matInput type="password" formControlName="password" />
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit">Zaloguj</button>
+      </form>
+    </mat-tab>
+
+    <mat-tab label="Rejestracja">
+      <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="register()">
+        <mat-form-field appearance="fill">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="username" />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Hasło</mat-label>
+          <input matInput type="password" formControlName="password" />
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit">Zarejestruj</button>
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="feedback" *ngIf="feedback">{{ feedback }}</div>
+</mat-card>

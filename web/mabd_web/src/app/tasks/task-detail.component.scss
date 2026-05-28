@@ -1,0 +1,10 @@
+.detail-card {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

@@ -1,0 +1,24 @@
+.task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.task-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.task-card {
+  display: block;
+}
+
+.empty-card {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}

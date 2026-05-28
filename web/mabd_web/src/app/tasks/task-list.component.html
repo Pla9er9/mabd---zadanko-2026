@@ -1,0 +1,52 @@
+<div class="task-header">
+  <div>
+    <h2>Lista zadań</h2>
+    <p>Przeglądaj zadania, filtruj według statusu, kategorii lub terminu.</p>
+  </div>
+  <a mat-flat-button color="primary" routerLink="/tasks/new">Dodaj zadanie</a>
+</div>
+
+<div class="task-filters">
+  <mat-form-field appearance="fill">
+    <mat-label>Status</mat-label>
+    <mat-select [(value)]="statusFilter" (selectionChange)="applyFilters()">
+      <mat-option value="">Wszystkie</mat-option>
+      <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Kategoria</mat-label>
+    <mat-select [(value)]="categoryFilter" (selectionChange)="applyFilters()">
+      <mat-option value="">Wszystkie</mat-option>
+      <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Termin</mat-label>
+    <input matInput type="date" [(ngModel)]="dueDateFilter" (ngModelChange)="applyFilters()" />
+  </mat-form-field>
+</div>
+
+<div *ngIf="filteredTasks.length; else noTasks">
+  <mat-card class="task-card" *ngFor="let task of filteredTasks">
+    <mat-card-title>{{ task.title }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ task.category }} · {{ task.status }} · {{ task.dueDate | date:'longDate' }}
+    </mat-card-subtitle>
+    <mat-card-content>
+      <p>{{ task.description }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/tasks/{{ task.id }}">Szczegóły</a>
+      <a mat-button routerLink="/tasks/{{ task.id }}/edit">Edytuj</a>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<ng-template #noTasks>
+  <mat-card class="empty-card">
+    <mat-card-content>Brak pasujących zadań. Spróbuj zmienić filtry.</mat-card-content>
+  </mat-card>
+</ng-template>

@@ -1,0 +1,20 @@
+.editor-card {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.editor-form {
+  display: grid;
+  gap: 18px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.feedback {
+  margin-top: 16px;
+  color: #d32f2f;
+}

@@ -1,0 +1,25 @@
+<ng-container *ngIf="task; else missingTask">
+  <mat-card class="detail-card">
+    <mat-card-title>{{ task.title }}</mat-card-title>
+    <mat-card-subtitle>
+      Kategoria: {{ task.category }} • Status: {{ task.status }} • Termin: {{ task.dueDate | date:'longDate' }}
+    </mat-card-subtitle>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <p>{{ task.description }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-flat-button color="primary" [routerLink]="['/tasks', task.id, 'edit']">Edytuj</a>
+      <a mat-button color="accent" routerLink="/tasks">Powrót</a>
+    </mat-card-actions>
+  </mat-card>
+</ng-container>
+
+<ng-template #missingTask>
+  <mat-card>
+    <mat-card-content>Nie odnaleziono zadania.</mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/tasks">Powrót do listy</a>
+    </mat-card-actions>
+  </mat-card>
+</ng-template>
