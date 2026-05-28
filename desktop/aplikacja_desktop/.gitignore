@@ -1,0 +1,30 @@
+# Pliki tworzone przez Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.psess
+*.vsp
+*.vspx
+*.pidb
+*.svclog
+*.scc
+
+# Wyniki kompilacji (Build results)
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Pliki ukryte i konfiguracyjne IDE
+.vs/
+*.csproj.user
+
+# Wyniki testów
+TestResults/
+
+# Pliki tworzone przez NuGet
+packages/
+*.nupkg
