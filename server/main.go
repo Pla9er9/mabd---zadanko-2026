@@ -32,6 +32,7 @@ func main() {
 	protected.Get("/tasks", listTasksHandler)
 	protected.Get("/tasks/:id", getTaskHandler)
 	protected.Put("/tasks/:id", updateTaskHandler)
+	protected.Patch("/tasks/:id/toggle", toggleTaskStatusHandler)
 	protected.Delete("/tasks/:id", deleteTaskHandler)
 
 	log.Fatal(app.Listen(":8080"))
@@ -230,6 +231,20 @@ func deleteTaskHandler(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
+func toggleTaskStatusHandler(c *fiber.Ctx) error {
+	task, err := findUserTask(c)
+	if err != nil {
+		return err
+	}
+
+	task.IsDone = !task.IsDone
+	if err := db.Save(&task).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to toggle task status")
+	}
+
+	return c.JSON(toTaskResponse(task))
+}
+
 func findUserTask(c *fiber.Ctx) (models.Task, error) {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil || id <= 0 {
@@ -282,6 +297,7 @@ func toTaskResponse(task models.Task) models.TaskResponse {
 		Description: task.Description,
 		Category:    task.Category,
 		DueDate:     task.DueDate.Format("2006-01-02"),
+		IsDone:      task.IsDone,
 		UserID:      task.UserID,
 	}
 }

@@ -15,6 +15,7 @@ type Task struct {
 	Description string    `json:"description"`
 	Category    string    `gorm:"not null" json:"category"`
 	DueDate     time.Time `gorm:"not null" json:"due_date"`
+	IsDone      bool      `gorm:"not null;default:false" json:"isDone"`
 	UserID      uint      `gorm:"not null;index" json:"user_id"`
 	User        User      `json:"-"`
 }
@@ -42,5 +43,6 @@ type TaskResponse struct {
 	Description string `json:"description"`
 	Category    string `json:"category"`
 	DueDate     string `json:"due_date"`
+	IsDone      bool   `json:"isDone"`
 	UserID      uint   `json:"user_id"`
 }
