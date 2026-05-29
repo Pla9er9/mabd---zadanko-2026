@@ -170,7 +170,35 @@ func listTasksHandler(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uint)
 	var tasks []models.Task
 
-	if err := db.Where("user_id = ?", userID).Order("due_date asc").Find(&tasks).Error; err != nil {
+	query := db.Where("user_id = ?", userID)
+
+	isDone, hasIsDone, err := optionalBoolQuery(c, "isDone")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "isDone must be true or false")
+	}
+	if hasIsDone {
+		query = query.Where("is_done = ?", isDone)
+	}
+
+	overdue, hasOverdue, err := optionalBoolQuery(c, "overdue")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "overdue must be true or false")
+	}
+	if hasOverdue {
+		today := todayStartUTC()
+		if overdue {
+			query = query.Where("due_date < ?", today)
+		} else {
+			query = query.Where("due_date >= ?", today)
+		}
+	}
+
+	category := strings.TrimSpace(c.Query("category"))
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+
+	if err := query.Order("due_date asc").Find(&tasks).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to list tasks")
 	}
 
@@ -180,6 +208,26 @@ func listTasksHandler(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(responses)
+}
+
+func optionalBoolQuery(c *fiber.Ctx, name string) (bool, bool, error) {
+	value := strings.TrimSpace(c.Query(name))
+	if value == "" {
+		return false, false, nil
+	}
+
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, true, err
+	}
+
+	return parsed, true, nil
+}
+
+func todayStartUTC() time.Time {
+	now := time.Now()
+	year, month, day := now.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
 func monthlyTasksReportHandler(c *fiber.Ctx) error {
