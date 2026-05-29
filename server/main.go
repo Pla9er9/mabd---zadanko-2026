@@ -11,6 +11,7 @@ import (
 	"github.com/mabd-zadanko-2026/server/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -22,6 +23,11 @@ func main() {
 	initDatabase()
 
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:4200,http://127.0.0.1:4200",
+		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
+	}))
 
 	app.Post("/register", registerHandler)
 	app.Post("/login", loginHandler)

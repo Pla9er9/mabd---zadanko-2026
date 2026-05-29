@@ -28,6 +28,7 @@ export class AuthComponent {
     password: ['']
   });
   feedback: string | null = null;
+  isSubmitting = false;
 
   login(): void {
     const { username, password } = this.loginForm.value;
@@ -36,11 +37,14 @@ export class AuthComponent {
       return;
     }
 
-    const result = this.authService.login(username, password);
-    this.feedback = result.message;
-    if (result.success) {
-      this.router.navigate(['/tasks']);
-    }
+    this.isSubmitting = true;
+    this.authService.login(username, password).subscribe((result) => {
+      this.feedback = result.message;
+      this.isSubmitting = false;
+      if (result.success) {
+        this.router.navigate(['/tasks']);
+      }
+    });
   }
 
   register(): void {
@@ -50,10 +54,13 @@ export class AuthComponent {
       return;
     }
 
-    const result = this.authService.register(username, password);
-    this.feedback = result.message;
-    if (result.success) {
-      this.router.navigate(['/tasks']);
-    }
+    this.isSubmitting = true;
+    this.authService.register(username, password).subscribe((result) => {
+      this.feedback = result.message;
+      this.isSubmitting = false;
+      if (result.success) {
+        this.router.navigate(['/tasks']);
+      }
+    });
   }
 }
