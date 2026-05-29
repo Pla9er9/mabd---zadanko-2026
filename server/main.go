@@ -2,20 +2,25 @@ package main
 
 import (
 	"encoding/base64"
+	"errors"
+	"log"
+	"strconv"
 	"strings"
-	"sync"
+	"time"
+
 	"github.com/mabd-zadanko-2026/server/models"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-var (
-	users     = make(map[string]*models.User)
-	userMutex sync.RWMutex
-)
+var db *gorm.DB
 
 func main() {
+	initDatabase()
+
 	app := fiber.New()
 
 	app.Post("/register", registerHandler)
@@ -23,8 +28,25 @@ func main() {
 
 	protected := app.Group("/api", basicAuthMiddleware)
 	protected.Get("/profile", profileHandler)
+	protected.Post("/tasks", createTaskHandler)
+	protected.Get("/tasks", listTasksHandler)
+	protected.Get("/tasks/:id", getTaskHandler)
+	protected.Put("/tasks/:id", updateTaskHandler)
+	protected.Delete("/tasks/:id", deleteTaskHandler)
 
-	app.Listen(":8080")
+	log.Fatal(app.Listen(":8080"))
+}
+
+func initDatabase() {
+	var err error
+	db, err = gorm.Open(sqlite.Open("tasks.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect database: ", err)
+	}
+
+	if err := db.AutoMigrate(&models.User{}, &models.Task{}); err != nil {
+		log.Fatal("failed to migrate database: ", err)
+	}
 }
 
 func registerHandler(c *fiber.Ctx) error {
@@ -37,11 +59,13 @@ func registerHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "username and password are required")
 	}
 
-	userMutex.Lock()
-	defer userMutex.Unlock()
-
-	if _, exists := users[req.Username]; exists {
+	var existing models.User
+	err := db.Where("username = ?", req.Username).First(&existing).Error
+	if err == nil {
 		return fiber.NewError(fiber.StatusConflict, "username already exists")
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to check username")
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -49,9 +73,12 @@ func registerHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "failed to hash password")
 	}
 
-	users[req.Username] = &models.User{
+	user := models.User{
 		Username:     req.Username,
 		PasswordHash: hash,
+	}
+	if err := db.Create(&user).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to create user")
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -65,11 +92,9 @@ func loginHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request payload")
 	}
 
-	userMutex.RLock()
-	user, exists := users[req.Username]
-	userMutex.RUnlock()
-
-	if !exists || bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(req.Password)) != nil {
+	var user models.User
+	if err := db.Where("username = ?", req.Username).First(&user).Error; err != nil ||
+		bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(req.Password)) != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid credentials")
 	}
 
@@ -98,24 +123,165 @@ func basicAuthMiddleware(c *fiber.Ctx) error {
 	username := parts[0]
 	password := parts[1]
 
-	userMutex.RLock()
-	user, exists := users[username]
-	userMutex.RUnlock()
-
-	if !exists || bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)) != nil {
+	var user models.User
+	if err := db.Where("username = ?", username).First(&user).Error; err != nil ||
+		bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)) != nil {
 		c.Set("WWW-Authenticate", "Basic realm=Restricted")
 		return fiber.NewError(fiber.StatusUnauthorized, "invalid credentials")
 	}
 
 	c.Locals("username", username)
+	c.Locals("userID", user.ID)
 	return c.Next()
 }
 
 func profileHandler(c *fiber.Ctx) error {
 	username := c.Locals("username").(string)
+	userID := c.Locals("userID").(uint)
 
 	return c.JSON(fiber.Map{
+		"id":       userID,
 		"username": username,
 		"message":  "authenticated profile data",
 	})
+}
+
+func createTaskHandler(c *fiber.Ctx) error {
+	var req models.TaskRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request payload")
+	}
+
+	task, err := taskFromRequest(req, c.Locals("userID").(uint))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := db.Create(&task).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to create task")
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(toTaskResponse(task))
+}
+
+func listTasksHandler(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+	var tasks []models.Task
+
+	if err := db.Where("user_id = ?", userID).Order("due_date asc").Find(&tasks).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to list tasks")
+	}
+
+	responses := make([]models.TaskResponse, len(tasks))
+	for i, task := range tasks {
+		responses[i] = toTaskResponse(task)
+	}
+
+	return c.JSON(responses)
+}
+
+func getTaskHandler(c *fiber.Ctx) error {
+	task, err := findUserTask(c)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(toTaskResponse(task))
+}
+
+func updateTaskHandler(c *fiber.Ctx) error {
+	task, err := findUserTask(c)
+	if err != nil {
+		return err
+	}
+
+	var req models.TaskRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request payload")
+	}
+
+	updatedTask, err := taskFromRequest(req, c.Locals("userID").(uint))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	task.Title = updatedTask.Title
+	task.Description = updatedTask.Description
+	task.Category = updatedTask.Category
+	task.DueDate = updatedTask.DueDate
+
+	if err := db.Save(&task).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to update task")
+	}
+
+	return c.JSON(toTaskResponse(task))
+}
+
+func deleteTaskHandler(c *fiber.Ctx) error {
+	task, err := findUserTask(c)
+	if err != nil {
+		return err
+	}
+
+	if err := db.Delete(&task).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to delete task")
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func findUserTask(c *fiber.Ctx) (models.Task, error) {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil || id <= 0 {
+		return models.Task{}, fiber.NewError(fiber.StatusBadRequest, "invalid task id")
+	}
+
+	var task models.Task
+	err = db.Where("id = ? AND user_id = ?", id, c.Locals("userID").(uint)).First(&task).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.Task{}, fiber.NewError(fiber.StatusNotFound, "task not found")
+	}
+	if err != nil {
+		return models.Task{}, fiber.NewError(fiber.StatusInternalServerError, "failed to find task")
+	}
+
+	return task, nil
+}
+
+func taskFromRequest(req models.TaskRequest, userID uint) (models.Task, error) {
+	if req.Title == "" || req.Category == "" || req.DueDate == "" {
+		return models.Task{}, errors.New("title, category and due_date are required")
+	}
+
+	dueDate, err := parseDueDate(req.DueDate)
+	if err != nil {
+		return models.Task{}, errors.New("due_date must be in YYYY-MM-DD or RFC3339 format")
+	}
+
+	return models.Task{
+		Title:       req.Title,
+		Description: req.Description,
+		Category:    req.Category,
+		DueDate:     dueDate,
+		UserID:      userID,
+	}, nil
+}
+
+func parseDueDate(value string) (time.Time, error) {
+	if dueDate, err := time.Parse("2006-01-02", value); err == nil {
+		return dueDate, nil
+	}
+
+	return time.Parse(time.RFC3339, value)
+}
+
+func toTaskResponse(task models.Task) models.TaskResponse {
+	return models.TaskResponse{
+		ID:          task.ID,
+		Title:       task.Title,
+		Description: task.Description,
+		Category:    task.Category,
+		DueDate:     task.DueDate.Format("2006-01-02"),
+		UserID:      task.UserID,
+	}
 }
