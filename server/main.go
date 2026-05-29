@@ -30,6 +30,7 @@ func main() {
 	protected.Get("/profile", profileHandler)
 	protected.Post("/tasks", createTaskHandler)
 	protected.Get("/tasks", listTasksHandler)
+	protected.Get("/tasks/report/month", monthlyTasksReportHandler)
 	protected.Get("/tasks/:id", getTaskHandler)
 	protected.Put("/tasks/:id", updateTaskHandler)
 	protected.Patch("/tasks/:id/toggle", toggleTaskStatusHandler)
@@ -181,6 +182,26 @@ func listTasksHandler(c *fiber.Ctx) error {
 	return c.JSON(responses)
 }
 
+func monthlyTasksReportHandler(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uint)
+	username := c.Locals("username").(string)
+	now := time.Now()
+	from := now.AddDate(0, -1, 0)
+
+	var tasks []models.Task
+	err := db.Where("user_id = ? AND created_at >= ?", userID, from).
+		Order("created_at desc").
+		Find(&tasks).Error
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "failed to generate task report")
+	}
+
+	report := buildMonthlyTasksPDF(username, from, now, tasks)
+	c.Set(fiber.HeaderContentType, "application/pdf")
+	c.Set(fiber.HeaderContentDisposition, `attachment; filename="tasks-monthly-report.pdf"`)
+	return c.Send(report)
+}
+
 func getTaskHandler(c *fiber.Ctx) error {
 	task, err := findUserTask(c)
 	if err != nil {
@@ -293,6 +314,7 @@ func parseDueDate(value string) (time.Time, error) {
 func toTaskResponse(task models.Task) models.TaskResponse {
 	return models.TaskResponse{
 		ID:          task.ID,
+		CreatedAt:   task.CreatedAt.Format(time.RFC3339),
 		Title:       task.Title,
 		Description: task.Description,
 		Category:    task.Category,

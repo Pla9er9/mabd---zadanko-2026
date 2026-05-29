@@ -11,6 +11,7 @@ type User struct {
 
 type Task struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
 	Title       string    `gorm:"not null" json:"title"`
 	Description string    `json:"description"`
 	Category    string    `gorm:"not null" json:"category"`
@@ -39,6 +40,7 @@ type TaskRequest struct {
 
 type TaskResponse struct {
 	ID          uint   `json:"id"`
+	CreatedAt   string `json:"created_at"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Category    string `json:"category"`
