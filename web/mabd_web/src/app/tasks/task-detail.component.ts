@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { TaskService } from './task.service';
 import { Task } from './task.model';
@@ -15,9 +15,48 @@ import { materialImports } from '../material';
 })
 export class TaskDetailComponent {
   task: Task | undefined;
+  isLoading = true;
+  feedback: string | null = null;
 
-  constructor(route: ActivatedRoute, taskService: TaskService) {
+  constructor(
+    route: ActivatedRoute,
+    private taskService: TaskService,
+    private router: Router
+  ) {
     const id = Number(route.snapshot.paramMap.get('id'));
-    this.task = taskService.getTask(id);
+    this.taskService.getTask(id).subscribe({
+      next: (task) => {
+        this.task = task;
+        this.isLoading = false;
+      },
+      error: (error: Error) => {
+        this.feedback = error.message;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  toggleDone(): void {
+    if (!this.task) {
+      return;
+    }
+
+    this.feedback = null;
+    this.taskService.toggleTaskStatus(this.task.id).subscribe({
+      next: (task) => (this.task = task),
+      error: (error: Error) => (this.feedback = error.message)
+    });
+  }
+
+  deleteTask(): void {
+    if (!this.task) {
+      return;
+    }
+
+    this.feedback = null;
+    this.taskService.deleteTask(this.task.id).subscribe({
+      next: () => this.router.navigate(['/tasks']),
+      error: (error: Error) => (this.feedback = error.message)
+    });
   }
 }

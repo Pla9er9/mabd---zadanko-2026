@@ -1,7 +1,9 @@
 <mat-card class="editor-card">
   <mat-card-title>{{ task ? 'Edytuj zadanie' : 'Nowe zadanie' }}</mat-card-title>
   <mat-card-content>
-    <form class="editor-form" [formGroup]="form" (ngSubmit)="save()">
+    <div class="loading" *ngIf="isLoading">Ładowanie zadania...</div>
+
+    <form class="editor-form" [formGroup]="form" (ngSubmit)="save()" *ngIf="!isLoading">
       <mat-form-field appearance="fill">
         <mat-label>Tytuł</mat-label>
         <input matInput formControlName="title" />
@@ -30,7 +32,7 @@
       </mat-form-field>
 
       <div class="editor-actions">
-        <button mat-flat-button color="primary" type="submit">Zapisz</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSaving">Zapisz</button>
         <a mat-button routerLink="/tasks">Anuluj</a>
       </div>
     </form>

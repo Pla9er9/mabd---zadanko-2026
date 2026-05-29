@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { TaskService } from './task.service';
-import { Task } from './task.model';
+import { Task, TaskPayload } from './task.model';
 import { materialImports } from '../material';
 
 @Component({
@@ -14,7 +14,7 @@ import { materialImports } from '../material';
   templateUrl: './task-editor.component.html',
   styleUrls: ['./task-editor.component.scss']
 })
-export class TaskEditorComponent {
+export class TaskEditorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -23,47 +23,69 @@ export class TaskEditorComponent {
   task?: Task;
   taskId = Number(this.route.snapshot.paramMap.get('id'));
   form = this.fb.group({
-    title: [''],
+    title: ['', Validators.required],
     description: [''],
-    status: ['Open'],
-    category: [''],
-    dueDate: ['']
+    status: ['Open', Validators.required],
+    category: ['', Validators.required],
+    dueDate: ['', Validators.required]
   });
   statusOptions = this.taskService.getStatuses();
-  categoryOptions = this.taskService.getCategories();
   feedback: string | null = null;
+  isLoading = false;
+  isSaving = false;
 
-  constructor() {
-    if (this.taskId) {
-      this.task = this.taskService.getTask(this.taskId);
+  ngOnInit(): void {
+    if (!this.taskId) {
+      return;
     }
-    if (this.task) {
-      this.form.setValue({
-        title: this.task.title,
-        description: this.task.description,
-        status: this.task.status,
-        category: this.task.category,
-        dueDate: this.task.dueDate
-      });
-    }
+
+    this.isLoading = true;
+    this.taskService.getTask(this.taskId).subscribe({
+      next: (task) => {
+        this.task = task;
+        this.isLoading = false;
+        if (!task) {
+          this.feedback = 'Nie odnaleziono zadania.';
+          return;
+        }
+
+        this.form.setValue({
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          category: task.category,
+          dueDate: task.dueDate
+        });
+      },
+      error: (error: Error) => {
+        this.feedback = error.message;
+        this.isLoading = false;
+      }
+    });
   }
 
   save(): void {
     if (this.form.invalid) {
-      this.feedback = 'Uzupełnij wszystkie pola zadania.';
+      this.feedback = 'Uzupełnij wymagane pola zadania.';
       return;
     }
 
-    const payload: Task = {
-      id: this.task?.id ?? 0,
+    const payload: TaskPayload = {
       title: this.form.value.title ?? '',
       description: this.form.value.description ?? '',
-      status: this.form.value.status as Task['status'],
+      status: this.form.value.status as TaskPayload['status'],
       category: this.form.value.category ?? '',
       dueDate: this.form.value.dueDate ?? ''
     };
 
-    this.taskService.saveTask(payload);
-    this.router.navigate(['/tasks']);
+    this.isSaving = true;
+    this.feedback = null;
+    this.taskService.saveTask(payload, this.task?.id).subscribe({
+      next: () => this.router.navigate(['/tasks']),
+      error: (error: Error) => {
+        this.feedback = error.message;
+        this.isSaving = false;
+      }
+    });
   }
 }
