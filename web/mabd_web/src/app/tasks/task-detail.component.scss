@@ -1,6 +1,31 @@
 .detail-card {
   max-width: 780px;
   margin: 0 auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.detail-card mat-card-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 0;
+  font-size: 1.55rem;
+}
+
+.detail-card mat-card-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 14px;
+}
+
+.detail-card mat-card-content {
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 mat-card-actions {
@@ -13,11 +38,43 @@ mat-card-actions {
 .feedback {
   max-width: 780px;
   margin: 0 auto 16px;
+  padding: 12px 14px;
   color: #d32f2f;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-weight: 600;
 }
 
 .loading {
   max-width: 780px;
   margin: 0 auto 16px;
   color: rgba(0, 0, 0, 0.62);
+}
+
+.status-pill,
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-pill {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.status-pill.done {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.category-pill {
+  color: #92400e;
+  background: #fef3c7;
 }

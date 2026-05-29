@@ -3,9 +3,13 @@
 
 <ng-container *ngIf="!isLoading && task; else missingTask">
   <mat-card class="detail-card">
-    <mat-card-title>{{ task.title }}</mat-card-title>
+    <mat-card-title>
+      {{ task.title }}
+      <span class="status-pill" [class.done]="task.isDone">{{ task.status }}</span>
+    </mat-card-title>
     <mat-card-subtitle>
-      Kategoria: {{ task.category }} • Status: {{ task.status }} • Termin: {{ task.dueDate | date:'longDate' }}
+      <span class="category-pill">{{ task.category }}</span>
+      <span>Termin: {{ task.dueDate | date:'longDate' }}</span>
     </mat-card-subtitle>
     <mat-divider></mat-divider>
     <mat-card-content>

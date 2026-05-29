@@ -1,6 +1,17 @@
 .editor-card {
   max-width: 760px;
   margin: 0 auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.editor-card mat-card-title {
+  display: block;
+  margin: -16px -16px 22px;
+  padding: 24px;
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #0f766e);
+  font-size: 1.55rem;
 }
 
 .editor-form {
@@ -10,13 +21,19 @@
 
 .editor-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 12px;
+  padding-top: 4px;
 }
 
 .feedback {
   margin-top: 16px;
+  padding: 12px 14px;
   color: #d32f2f;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-weight: 600;
 }
 
 .loading {

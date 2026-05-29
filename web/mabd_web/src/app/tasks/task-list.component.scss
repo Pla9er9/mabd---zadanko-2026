@@ -3,20 +3,73 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+  padding: 24px;
+  color: white;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2563eb, #0f766e);
+  box-shadow: var(--app-shadow);
+}
+
+.task-header h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 4vw, 2.35rem);
+  letter-spacing: 0;
+}
+
+.task-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
 }
 
 .task-filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .task-card {
-  display: block;
-  margin-bottom: 14px;
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  margin-bottom: 0;
+  padding: 4px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.task-card mat-card-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 1.14rem;
+}
+
+.task-card mat-card-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.task-card mat-card-content {
+  flex: 1;
+  color: #475569;
+  line-height: 1.55;
 }
 
 .task-card mat-card-actions {
@@ -26,18 +79,58 @@
   gap: 8px;
 }
 
+.status-pill,
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-pill {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.status-pill.done {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.category-pill {
+  color: #92400e;
+  background: #fef3c7;
+}
+
 .empty-card {
   max-width: 600px;
   margin: 0 auto;
   text-align: center;
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .feedback {
   margin-bottom: 16px;
+  padding: 12px 14px;
   color: #d32f2f;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-weight: 600;
 }
 
 .loading {
   margin-bottom: 16px;
   color: rgba(0, 0, 0, 0.62);
+}
+
+@media (max-width: 640px) {
+  .task-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

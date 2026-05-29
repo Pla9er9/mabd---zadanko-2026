@@ -1,9 +1,27 @@
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
 
+:root {
+  --app-bg: #eef4ff;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f7faff;
+  --app-text: #182033;
+  --app-muted: #64748b;
+  --app-primary: #2563eb;
+  --app-primary-dark: #1d4ed8;
+  --app-accent: #0f766e;
+  --app-warn: #dc2626;
+  --app-border: rgba(37, 99, 235, 0.14);
+  --app-shadow: 0 18px 50px rgba(15, 23, 42, 0.10);
+}
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f5f7fb;
+  color: var(--app-text);
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 34rem),
+    linear-gradient(135deg, #eef4ff 0%, #f8fbff 48%, #f2fff9 100%);
+  min-height: 100vh;
 }
 
 * {
@@ -12,4 +30,24 @@ body {
 
 mat-card {
   margin-bottom: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+a,
+button {
+  font-weight: 600;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-card-title {
+  color: var(--app-text);
+}
+
+.mat-mdc-card-subtitle {
+  color: var(--app-muted);
 }

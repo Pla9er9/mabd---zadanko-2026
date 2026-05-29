@@ -34,11 +34,15 @@
 <div class="feedback" *ngIf="feedback">{{ feedback }}</div>
 <div class="loading" *ngIf="isLoading">Ładowanie zadań...</div>
 
-<div *ngIf="!isLoading && filteredTasks.length; else noTasks">
+<div class="task-grid" *ngIf="!isLoading && filteredTasks.length; else noTasks">
   <mat-card class="task-card" *ngFor="let task of filteredTasks">
-    <mat-card-title>{{ task.title }}</mat-card-title>
+    <mat-card-title>
+      {{ task.title }}
+      <span class="status-pill" [class.done]="task.isDone">{{ task.status }}</span>
+    </mat-card-title>
     <mat-card-subtitle>
-      {{ task.category }} · {{ task.status }} · {{ task.dueDate | date:'longDate' }}
+      <span class="category-pill">{{ task.category }}</span>
+      <span>{{ task.dueDate | date:'longDate' }}</span>
     </mat-card-subtitle>
     <mat-card-content>
       <p>{{ task.description || 'Brak opisu.' }}</p>

@@ -1,16 +1,42 @@
 .auth-card {
   max-width: 520px;
   margin: 0 auto;
+  overflow: hidden;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, #2563eb, #0f766e, #f59e0b) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14) !important;
+}
+
+.auth-card mat-card-header {
+  padding: 28px 28px 16px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(15, 118, 110, 0.10));
+}
+
+.auth-card mat-card-title {
+  font-size: 1.45rem;
+}
+
+.auth-card mat-card-subtitle {
+  color: #475569;
+}
+
+.auth-card mat-tab-group {
+  padding: 10px 24px 24px;
 }
 
 .auth-form {
   display: grid;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 22px;
 }
 
 .feedback {
   margin-top: 18px;
+  padding: 12px 14px;
   color: #d32f2f;
+  border-radius: 8px;
+  background: #fef2f2;
   font-weight: 500;
 }

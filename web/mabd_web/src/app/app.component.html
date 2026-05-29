@@ -1,9 +1,11 @@
 <mat-toolbar color="primary" class="app-toolbar">
-  <span class="brand">MABD Zadania</span>
+  <a class="brand" routerLink="/">MABD Zadania</a>
   <span class="spacer"></span>
-  <a mat-button routerLink="/">Home</a>
-  <a mat-button routerLink="/tasks">Zadania</a>
-  <a mat-button routerLink="/auth">Logowanie</a>
+  <nav class="nav-links">
+    <a mat-button routerLink="/">Home</a>
+    <a mat-button routerLink="/tasks">Zadania</a>
+    <a mat-button routerLink="/auth">Logowanie</a>
+  </nav>
   <button mat-button *ngIf="username" (click)="auth.logout()">Wyloguj</button>
 </mat-toolbar>
 <div class="app-content">

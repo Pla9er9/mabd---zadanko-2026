@@ -1,21 +1,33 @@
 <section class="hero">
   <div class="hero-content">
-    <h1>Witamy w systemie zarządzania zadaniami</h1>
-    <p>Planowanie, filtrowanie i edycja zadań w jednym miejscu dla twojego zespołu lub projektu osobistego.</p>
+    <span class="hero-kicker">Planowanie bez chaosu</span>
+    <h1>System zarządzania zadaniami</h1>
+    <p>Twórz zadania, pilnuj terminów i szybko sprawdzaj, co jest już wykonane.</p>
     <div class="hero-actions">
       <a mat-flat-button color="primary" routerLink="/auth">Zaloguj się</a>
       <a mat-stroked-button color="primary" routerLink="/tasks">Przeglądaj zadania</a>
     </div>
   </div>
+
   <mat-card class="hero-card">
-    <mat-card-title>Funkcje</mat-card-title>
+    <mat-card-title>Najważniejsze</mat-card-title>
     <mat-card-content>
-      <ul>
-        <li>Rejestracja i logowanie użytkownika</li>
-        <li>Lista zadań z szybkim filtrowaniem</li>
-        <li>Dodawanie i edycja zadań</li>
-        <li>Widok szczegółów zadania</li>
-      </ul>
+      <div class="feature-row">
+        <span class="feature-dot dot-blue"></span>
+        <span>Logowanie i rejestracja użytkownika</span>
+      </div>
+      <div class="feature-row">
+        <span class="feature-dot dot-green"></span>
+        <span>Lista zadań z filtrowaniem</span>
+      </div>
+      <div class="feature-row">
+        <span class="feature-dot dot-amber"></span>
+        <span>Dodawanie, edycja i usuwanie zadań</span>
+      </div>
+      <div class="feature-row">
+        <span class="feature-dot dot-rose"></span>
+        <span>Szczegóły zadania i status wykonania</span>
+      </div>
     </mat-card-content>
   </mat-card>
 </section>
