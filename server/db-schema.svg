@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+  <style>
+    .box { fill:#f8f9fb; stroke:#2b2f36; stroke-width:2; rx:8; }
+    .title { font: bold 16px sans-serif; fill:#0b1220; }
+    .field { font: 13px monospace; fill:#101418; }
+    .rel { stroke:#2b2f36; stroke-width:2; marker-end:url(#arrow); }
+    .note { font:12px sans-serif; fill:#3b4752; }
+  </style>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2b2f36" />
+    </marker>
+  </defs>
+
+  <!-- User table -->
+  <g transform="translate(40,40)">
+    <rect class="box" width="320" height="220"/>
+    <text class="title" x="16" y="30">User</text>
+
+    <text class="field" x="16" y="60">id : uint (PK)</text>
+    <text class="field" x="16" y="85">username : string (unique, not null)</text>
+    <text class="field" x="16" y="110">password_hash : []byte (not exposed)</text>
+    <text class="field" x="16" y="135">tasks : []Task (has-many)</text>
+  </g>
+
+  <!-- Task table -->
+  <g transform="translate(420,40)">
+    <rect class="box" width="420" height="300"/>
+    <text class="title" x="16" y="30">Task</text>
+
+    <text class="field" x="16" y="60">id : uint (PK)</text>
+    <text class="field" x="16" y="85">created_at : time.Time</text>
+    <text class="field" x="16" y="110">title : string (not null)</text>
+    <text class="field" x="16" y="135">description : string</text>
+    <text class="field" x="16" y="160">category : string (not null)</text>
+    <text class="field" x="16" y="185">due_date : time.Time (not null)</text>
+    <text class="field" x="16" y="210">is_done : bool (default=false)</text>
+    <text class="field" x="16" y="235">user_id : uint (FK, not null, index)</text>
+    <text class="field" x="16" y="260">user : User (belongs-to)</text>
+  </g>
+
+  <!-- Relationship arrow -->
+  <line class="rel" x1="360" y1="120" x2="420" y2="235"/>
+  <text class="note" x="300" y="120">1</text>
+  <text class="note" x="430" y="240">* (many)</text>
+
+  <!-- Footer note -->
+</svg>
